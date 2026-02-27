@@ -1,0 +1,70 @@
+# ──────────────────────────────────────────
+# Environment files
+# Keep .env.example files; ignore real .env files
+# ──────────────────────────────────────────
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.*.example
+
+
+# ──────────────────────────────────────────
+# Python
+# ──────────────────────────────────────────
+**/.venv/
+**/venv/
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+
+# Test & coverage
+.coverage
+coverage/
+htmlcov/
+.pytest_cache/
+
+# Type checkers / linters
+.mypy_cache/
+.ruff_cache/
+
+# SQLite test databases (created by pytest fixtures)
+*.db
+*.sqlite
+*.sqlite3
+
+
+# ──────────────────────────────────────────
+# Node / Frontend
+# ──────────────────────────────────────────
+**/node_modules/
+**/dist/
+**/.vite/
+
+
+# ──────────────────────────────────────────
+# IDE / Editor
+# ──────────────────────────────────────────
+.vscode/
+.idea/
+
+
+# ──────────────────────────────────────────
+# OS
+# ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+
+# ──────────────────────────────────────────
+# Logs
+# ──────────────────────────────────────────
+*.log
+
+
+# ──────────────────────────────────────────
+# Database dumps/exports (NOT schema files)
+# schema_postgres.sql and schema_mysql.sql are tracked
+# ──────────────────────────────────────────
+*.dump
+*.backup
