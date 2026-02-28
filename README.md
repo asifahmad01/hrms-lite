@@ -297,3 +297,14 @@ Serve the `dist/` folder with any static file host (Nginx, Vercel, Netlify, etc.
 - **Duplicate safety** — Application-level pre-check + database `IntegrityError` fallback for race-condition safety.
 - **Typed API client** — Frontend fetch wrapper returns typed `ApiResponse<T>` objects and maps HTTP errors to user-readable messages.
 - **Component composition** — Reusable UI primitives (Button, Card, Badge, Table, Toast) keep page components clean.
+
+## 🌍 Live Application
+
+Frontend (Vercel):
+https://hrms-lite-fnz7.vercel.app
+
+Backend (Render):
+https://hrms-lite-03kx.onrender.com
+
+Health Check:
+https://hrms-lite-03kx.onrender.com/health

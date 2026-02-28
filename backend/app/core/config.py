@@ -36,12 +36,13 @@ class Settings(BaseSettings):
     )
 
     # ── Computed properties ───────────────────────────────────────────
+    
     @property
-    def database_url(self) -> str:
-        """Async PostgreSQL URL for SQLAlchemy."""
+    def database_url_with_ssl(self) -> str:
         return (
             f"postgresql+asyncpg://{self.db_user}:{self.db_password}"
             f"@{self.db_host}:{self.db_port}/{self.db_name}"
+            f"?ssl=require"
         )
 
     @property
