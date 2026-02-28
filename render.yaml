@@ -1,0 +1,57 @@
+services:
+  - type: web
+    name: hrms-lite-backend
+    runtime: python
+    rootDir: backend
+
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+
+    autoDeploy: true
+
+    envVars:
+      - key: APP_ENV
+        value: "production"
+
+      - key: APP_DEBUG
+        value: "false"
+
+      - key: SECRET_KEY
+        generateValue: true
+
+      # ✅ Frontend is on Vercel, so put your Vercel URL here
+      # Example: ["https://hrms-lite-fnz7.vercel.app"]
+      - key: CORS_ORIGINS
+        value: '["https://vercel.com/5841asifanjum-gmailcoms-projects/hrms-lite-fnz7"]'
+
+      # ✅ DB vars from Render managed Postgres (best: internal networking)
+      - key: DB_HOST
+        fromDatabase:
+          name: hrms-lite-db
+          property: host
+
+      - key: DB_PORT
+        fromDatabase:
+          name: hrms-lite-db
+          property: port
+
+      - key: DB_NAME
+        fromDatabase:
+          name: hrms-lite-db
+          property: database
+
+      - key: DB_USER
+        fromDatabase:
+          name: hrms-lite-db
+          property: user
+
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: hrms-lite-db
+          property: password
+
+databases:
+  - name: hrms-lite-db
+    databaseName: hrms_lite
+    user: hrms_user
+    plan: free

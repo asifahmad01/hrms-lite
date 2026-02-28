@@ -36,7 +36,15 @@ class Settings(BaseSettings):
     )
 
     # ── Computed properties ───────────────────────────────────────────
-    
+
+    @property
+    def database_url(self) -> str:
+        base = (
+            f"postgresql+asyncpg://{self.db_user}:{self.db_password}"
+            f"@{self.db_host}:{self.db_port}/{self.db_name}"
+        )
+        return f"{base}?ssl=require" if self.is_production else base
+
     @property
     def database_url_with_ssl(self) -> str:
         return (
