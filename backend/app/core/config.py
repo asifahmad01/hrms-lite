@@ -1,8 +1,7 @@
 import json
 from functools import lru_cache
-from typing import Any
 
-from pydantic import field_validator
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,27 +25,32 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60
 
     # ── CORS ─────────────────────────────────────────────────────────
-    # Accepts a JSON array string from env:
-    #   CORS_ORIGINS='["http://localhost:5173"]'
-    cors_origins: list[str] = ["http://localhost:5173"]
-
-    @field_validator("cors_origins", mode="before")
-    @classmethod
-    def parse_cors_origins(cls, v: Any) -> Any:
-        if isinstance(v, str):
-            v = v.strip()
-            if not v:
-                return []
-            return json.loads(v)
-        return v
+    # Stored as str so pydantic-settings never tries to JSON-decode it
+    # internally. Reads from CORS_ORIGINS env var via validation_alias.
+    cors_origins_str: str = Field(
+        default='["http://localhost:5173"]',
+        validation_alias="cors_origins",
+    )
 
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
+        populate_by_name=True,
     )
 
     # ── Computed properties ───────────────────────────────────────────
+
+    @property
+    def cors_origins(self) -> list[str]:
+        v = self.cors_origins_str.strip()
+        if not v:
+            return ["http://localhost:5173"]
+        try:
+            return json.loads(v)
+        except json.JSONDecodeError:
+            # Also accept comma-separated: http://a.com,http://b.com
+            return [o.strip() for o in v.split(",") if o.strip()]
 
     @property
     def database_url(self) -> str:
