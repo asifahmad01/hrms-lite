@@ -22,7 +22,7 @@ services:
       # ✅ Frontend is on Vercel, so put your Vercel URL here
       # Example: ["https://hrms-lite-fnz7.vercel.app"]
       - key: CORS_ORIGINS
-        value: '["https://vercel.com/5841asifanjum-gmailcoms-projects/hrms-lite-fnz7"]'
+        value: '["https://hrms-lite-fnz7.vercel.app"]'
 
       # ✅ DB vars from Render managed Postgres (best: internal networking)
       - key: DB_HOST
