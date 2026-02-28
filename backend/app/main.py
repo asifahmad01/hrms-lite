@@ -7,6 +7,9 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.config import get_settings
+from app.db.base import Base
+from app.db.session import engine
+import app.models  # noqa: F401 — registers all models with Base.metadata
 from app.routers import attendance, employees
 from app.schemas.common import ErrorDetail, ErrorResponse
 
@@ -16,7 +19,9 @@ settings = get_settings()
 # ── Lifespan ──────────────────────────────────────────────────────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # startup — add DB table-creation / migration calls here if needed
+    # Create all tables on startup (safe: uses CREATE TABLE IF NOT EXISTS)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     yield
     # shutdown — close connection pools, etc.
 
