@@ -8,5 +8,11 @@ ruff>=0.6.0             # linter + formatter (replaces flake8, isort, black)
 # ── Type checking ─────────────────────────────────────────────────────────────
 mypy>=1.11.0
 
+# ── Testing ───────────────────────────────────────────────────────────────────
+pytest>=8.0
+pytest-asyncio>=0.23
+httpx>=0.27
+aiosqlite>=0.20          # async SQLite driver used by the test suite
+
 # ── Type stubs for packages that need them ─────────────────────────────────────
 # SQLAlchemy 2.0+ and Pydantic v2 ship their own stubs — no extras needed.

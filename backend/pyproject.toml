@@ -38,6 +38,7 @@ ignore = [
                # — required by FastAPI's Depends() pattern
     "SIM108", # ternary operator suggestion — hurts readability in complex exprs
     "E501",   # line too long — handled by the formatter
+    "UP046",  # PEP 695 generic syntax requires Python 3.12; keep Generic[T] for 3.11 compat
 ]
 
 [tool.ruff.lint.isort]

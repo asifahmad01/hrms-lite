@@ -6,7 +6,7 @@ import pytest
 
 async def _create_employee(client: AsyncClient) -> int:
     payload = {
-        "employee_id": "EMP-A1",
+        "employee_code": "EMP-A1",
         "full_name": "Attendance Tester",
         "email": "attend@example.com",
         "department": "QA",

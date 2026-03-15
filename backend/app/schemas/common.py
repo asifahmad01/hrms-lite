@@ -4,7 +4,11 @@ Shared response envelope used by every endpoint.
 Success:    {"success": true,  "message": "...", "data": {...}}
 Error:      {"success": false, "message": "...", "errors": [...]}
 """
+from typing import Generic, TypeVar
+
 from pydantic import BaseModel
+
+T = TypeVar("T")
 
 
 class ErrorDetail(BaseModel):
@@ -13,7 +17,7 @@ class ErrorDetail(BaseModel):
     message: str
 
 
-class APIResponse[T](BaseModel):
+class APIResponse(BaseModel, Generic[T]):
     """
     Generic success envelope.
 
