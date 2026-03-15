@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,7 +26,7 @@ daily_router = APIRouter(prefix="/attendance", tags=["Attendance"])
 
 
 # ── Dependency ────────────────────────────────────────────────────────────────
-def _svc(db: AsyncSession = Depends(get_db)) -> AttendanceService:
+def _svc(db: Annotated[AsyncSession, Depends(get_db)]) -> AttendanceService:
     return AttendanceService(db)
 
 
@@ -35,12 +36,11 @@ def _svc(db: AsyncSession = Depends(get_db)) -> AttendanceService:
 
 @daily_router.get(
     "/daily",
-    response_model=APIResponse[list[DailyAttendanceItem]],
     summary="Get all employees with their attendance status for a given date",
 )
 async def get_daily_attendance(
-    date: date = Query(..., description="Date to view (YYYY-MM-DD)"),
-    svc: AttendanceService = Depends(_svc),
+    date: Annotated[date, Query(description="Date to view (YYYY-MM-DD)")],
+    svc: Annotated[AttendanceService, Depends(_svc)],
 ) -> APIResponse[list[DailyAttendanceItem]]:
     rows = await svc.get_daily_view(date)
     items = [
@@ -59,20 +59,19 @@ async def get_daily_attendance(
 
 @router.get(
     "/{employee_id}/attendance/summary",
-    response_model=APIResponse[AttendanceMonthlySummary],
     summary="Monthly attendance summary for a single employee",
     responses={404: {"description": "Employee not found"}},
 )
 async def get_monthly_summary(
     employee_id: int,
-    year:  int = Query(..., ge=2000, le=2100, description="Calendar year (e.g. 2026)"),
-    month: int = Query(..., ge=1,    le=12,   description="Calendar month 1–12"),
-    svc: AttendanceService = Depends(_svc),
+    year: Annotated[int, Query(ge=2000, le=2100, description="Calendar year (e.g. 2026)")],
+    month: Annotated[int, Query(ge=1, le=12, description="Calendar month 1-12")],
+    svc: Annotated[AttendanceService, Depends(_svc)],
 ) -> APIResponse[AttendanceMonthlySummary]:
     try:
         data = await svc.get_monthly_summary(employee_id, year, month)
     except NotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     return APIResponse(
         message=f"Summary for employee {employee_id}, {year}-{month:02d}.",
         data=AttendanceMonthlySummary(**data),
@@ -81,7 +80,6 @@ async def get_monthly_summary(
 
 @router.get(
     "/{employee_id}/attendance",
-    response_model=APIResponse[list[AttendanceRead]],
     summary="List attendance records for an employee",
     responses={
         404: {"description": "Employee not found"},
@@ -90,9 +88,9 @@ async def get_monthly_summary(
 )
 async def list_attendance(
     employee_id: int,
-    from_date: date | None = Query(None, alias="from"),
-    to_date:   date | None = Query(None, alias="to"),
-    svc: AttendanceService = Depends(_svc),
+    svc: Annotated[AttendanceService, Depends(_svc)],
+    from_date: Annotated[date | None, Query(alias="from")] = None,
+    to_date: Annotated[date | None, Query(alias="to")] = None,
 ) -> APIResponse[list[AttendanceRead]]:
     if from_date and to_date and from_date > to_date:
         raise HTTPException(
@@ -104,7 +102,7 @@ async def list_attendance(
             employee_id, from_date=from_date, to_date=to_date
         )
     except NotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     return APIResponse(
         message=f"{len(records)} attendance record(s) found.",
         data=[AttendanceRead.model_validate(r) for r in records],
@@ -113,19 +111,18 @@ async def list_attendance(
 
 @router.patch(
     "/{employee_id}/attendance",
-    response_model=APIResponse[AttendanceRead],
     summary="Create or update attendance for an employee on a given date (upsert)",
     responses={404: {"description": "Employee not found"}},
 )
 async def upsert_attendance(
     employee_id: int,
     payload: AttendanceMark,
-    svc: AttendanceService = Depends(_svc),
+    svc: Annotated[AttendanceService, Depends(_svc)],
 ) -> APIResponse[AttendanceRead]:
     try:
         record = await svc.upsert(employee_id, payload)
     except NotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     return APIResponse(
         message="Attendance recorded.",
         data=AttendanceRead.model_validate(record),
@@ -134,9 +131,8 @@ async def upsert_attendance(
 
 @router.post(
     "/{employee_id}/attendance",
-    response_model=APIResponse[AttendanceRead],
     status_code=status.HTTP_201_CREATED,
-    summary="Mark attendance for an employee (strict — 409 if already marked)",
+    summary="Mark attendance for an employee (strict - 409 if already marked)",
     responses={
         404: {"description": "Employee not found"},
         409: {"description": "Attendance already marked for this date"},
@@ -145,14 +141,14 @@ async def upsert_attendance(
 async def mark_attendance(
     employee_id: int,
     payload: AttendanceMark,
-    svc: AttendanceService = Depends(_svc),
+    svc: Annotated[AttendanceService, Depends(_svc)],
 ) -> APIResponse[AttendanceRead]:
     try:
         record = await svc.mark(employee_id, payload)
     except NotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     except DuplicateEntryError as exc:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     return APIResponse(
         message="Attendance marked successfully.",
         data=AttendanceRead.model_validate(record),

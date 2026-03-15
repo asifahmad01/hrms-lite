@@ -1,5 +1,5 @@
-import enum
 from datetime import date, datetime
+from enum import StrEnum
 
 from sqlalchemy import Date, Enum, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -7,17 +7,16 @@ from sqlalchemy.types import DateTime
 
 from app.db.base import Base
 
-
 # ── Enums ──────────────────────────────────────────────────────────────────────
 
-class EmploymentType(str, enum.Enum):
+class EmploymentType(StrEnum):
     FULL_TIME = "FULL_TIME"
     PART_TIME = "PART_TIME"
     CONTRACT  = "CONTRACT"
     INTERN    = "INTERN"
 
 
-class EmployeeStatus(str, enum.Enum):
+class EmployeeStatus(StrEnum):
     ACTIVE      = "ACTIVE"
     INACTIVE    = "INACTIVE"
     ON_LEAVE    = "ON_LEAVE"

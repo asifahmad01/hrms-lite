@@ -6,12 +6,12 @@ Validation rules enforced here (not duplicated in the service):
   - reason must be between 10 and 1 000 characters
   - status cannot be set back to PENDING via the API
 """
-from datetime import date as Date, datetime
+from datetime import date as Date
+from datetime import datetime
 
 from pydantic import BaseModel, Field, model_validator
 
 from app.models.leave_request import LeaveStatus, LeaveType
-
 
 # ── Create ─────────────────────────────────────────────────────────────────────
 

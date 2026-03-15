@@ -14,7 +14,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import DuplicateEntryError, NotFoundError
-from app.models.attendance import Attendance, AttendanceStatus
+from app.models.attendance import Attendance
 from app.models.employee import Employee
 from app.schemas.attendance import AttendanceMark, AttendanceUpdate
 
@@ -97,7 +97,7 @@ class AttendanceService:
             await self.db.rollback()
             err = str(exc.orig).lower()
             if "uq_attendance_employee_date" in err or "date" in err:
-                raise DuplicateEntryError("attendance date", str(payload.date))
+                raise DuplicateEntryError("attendance date", str(payload.date)) from exc
             raise
 
         await self.db.refresh(record)

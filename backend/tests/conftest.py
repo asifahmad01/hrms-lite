@@ -1,15 +1,12 @@
-import asyncio
 from collections.abc import AsyncGenerator
 
-import pytest
-from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
+import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.db.base import Base
 from app.db import session as db_session_module
+from app.db.base import Base
 from app.main import app
-
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///./test_hrms.db"
 
@@ -64,4 +61,3 @@ async def client(prepare_database: None) -> AsyncGenerator[AsyncClient, None]:
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
-

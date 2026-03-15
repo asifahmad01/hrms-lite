@@ -89,9 +89,9 @@ class EmployeeService:
             await self.db.rollback()
             err = str(exc.orig).lower()
             if "employee_code" in err or "uq_employees_employee_code" in err:
-                raise DuplicateEntryError("employee_code", payload.employee_code)
+                raise DuplicateEntryError("employee_code", payload.employee_code) from exc
             if "email" in err or "uq_employees_email" in err:
-                raise DuplicateEntryError("email", str(payload.email))
+                raise DuplicateEntryError("email", str(payload.email)) from exc
             raise  # unexpected — let the 500 handler deal with it
 
         await self.db.refresh(employee)
@@ -118,7 +118,7 @@ class EmployeeService:
             await self.db.rollback()
             err = str(exc.orig).lower()
             if "email" in err:
-                raise DuplicateEntryError("email", str(payload.email or ""))
+                raise DuplicateEntryError("email", str(payload.email or "")) from exc
             raise
 
         await self.db.refresh(employee)

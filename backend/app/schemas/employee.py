@@ -1,10 +1,9 @@
-import re
 from datetime import date, datetime
+import re
 
 from pydantic import BaseModel, Field, field_validator
 
 from app.models.employee import EmployeeStatus, EmploymentType
-
 
 # ── Shared validator helpers ───────────────────────────────────────────────────
 

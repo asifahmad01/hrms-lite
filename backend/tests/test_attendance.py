@@ -1,7 +1,7 @@
 from datetime import date
 
-import pytest
 from httpx import AsyncClient
+import pytest
 
 
 async def _create_employee(client: AsyncClient) -> int:

@@ -71,7 +71,7 @@ class LeaveRequestService:
         if conflict is not None:
             raise BusinessRuleError(
                 f"Dates overlap an existing {conflict.status.value.lower()} leave request "
-                f"(#{conflict.id}: {conflict.start_date} – {conflict.end_date})."
+                f"(#{conflict.id}: {conflict.start_date} - {conflict.end_date})."
             )
 
     # ── Public API ────────────────────────────────────────────────────────────

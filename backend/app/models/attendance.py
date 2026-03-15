@@ -1,5 +1,5 @@
-import enum
 from datetime import date, datetime
+from enum import StrEnum
 
 from sqlalchemy import Date, Enum, ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -8,7 +8,7 @@ from sqlalchemy.types import DateTime
 from app.db.base import Base
 
 
-class AttendanceStatus(str, enum.Enum):
+class AttendanceStatus(StrEnum):
     PRESENT  = "PRESENT"
     ABSENT   = "ABSENT"
     LEAVE    = "LEAVE"

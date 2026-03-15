@@ -9,7 +9,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.core.config import get_settings
 from app.db.base import Base
 from app.db.session import engine
-import app.models  # noqa: F401 — registers all models with Base.metadata
+import app.models  # registers all models with Base.metadata
 from app.routers import attendance, dashboard, employees, leave_requests
 from app.schemas.common import ErrorDetail, ErrorResponse
 

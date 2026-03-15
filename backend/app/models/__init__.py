@@ -4,4 +4,4 @@ from app.models.attendance import Attendance, AttendanceStatus
 from app.models.employee import Employee
 from app.models.leave_request import LeaveRequest, LeaveStatus, LeaveType
 
-__all__ = ["Employee", "Attendance", "AttendanceStatus", "LeaveRequest", "LeaveStatus", "LeaveType"]
+__all__ = ["Attendance", "AttendanceStatus", "Employee", "LeaveRequest", "LeaveStatus", "LeaveType"]

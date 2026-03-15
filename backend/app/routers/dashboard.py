@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,7 +13,7 @@ router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
 # ── Dependency ────────────────────────────────────────────────────────────────
 
-def _svc(db: AsyncSession = Depends(get_db)) -> DashboardService:
+def _svc(db: Annotated[AsyncSession, Depends(get_db)]) -> DashboardService:
     return DashboardService(db)
 
 
@@ -19,7 +21,6 @@ def _svc(db: AsyncSession = Depends(get_db)) -> DashboardService:
 
 @router.get(
     "/stats",
-    response_model=APIResponse[DashboardStats],
     summary="Dashboard KPI stats",
     description=(
         "Returns all data required to render the dashboard page in a single "
@@ -28,7 +29,7 @@ def _svc(db: AsyncSession = Depends(get_db)) -> DashboardService:
     ),
 )
 async def get_dashboard_stats(
-    svc: DashboardService = Depends(_svc),
+    svc: Annotated[DashboardService, Depends(_svc)],
 ) -> APIResponse[DashboardStats]:
     stats = await svc.get_stats()
     return APIResponse(message="Dashboard stats loaded.", data=stats)

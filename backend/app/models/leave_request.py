@@ -1,5 +1,5 @@
-import enum
 from datetime import date, datetime
+from enum import StrEnum
 
 from sqlalchemy import Date, Enum, ForeignKey, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -7,10 +7,9 @@ from sqlalchemy.types import DateTime
 
 from app.db.base import Base
 
-
 # ── Enums ──────────────────────────────────────────────────────────────────────
 
-class LeaveType(str, enum.Enum):
+class LeaveType(StrEnum):
     ANNUAL    = "ANNUAL"
     SICK      = "SICK"
     CASUAL    = "CASUAL"
@@ -19,7 +18,7 @@ class LeaveType(str, enum.Enum):
     PATERNITY = "PATERNITY"
 
 
-class LeaveStatus(str, enum.Enum):
+class LeaveStatus(StrEnum):
     PENDING  = "PENDING"
     APPROVED = "APPROVED"
     REJECTED = "REJECTED"

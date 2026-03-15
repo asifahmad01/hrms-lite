@@ -22,6 +22,6 @@ class DashboardStats(BaseModel):
     present_today: int
     absent_today: int
     departments_count: int
-    attendance_rate_today: float       # 0–100 percentage
+    attendance_rate_today: float       # 0-100 percentage
     recent_employees: list[EmployeeRead]   # last 5 joined
     today_summary: list[TodaySummaryItem]  # all attendance records for today
