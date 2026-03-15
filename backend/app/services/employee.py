@@ -31,21 +31,21 @@ class EmployeeService:
         return employee
 
     async def _check_unique_on_create(
-        self, employee_id_val: str, email_val: str
+        self, employee_code_val: str, email_val: str
     ) -> None:
-        """Raise DuplicateEntryError if employee_id or email is already taken."""
+        """Raise DuplicateEntryError if employee_code or email is already taken."""
         result = await self.db.execute(
             select(Employee).where(
                 or_(
-                    Employee.employee_id == employee_id_val,
+                    Employee.employee_code == employee_code_val,
                     Employee.email == email_val,
                 )
             )
         )
         rows = result.scalars().all()
         for row in rows:
-            if row.employee_id == employee_id_val:
-                raise DuplicateEntryError("employee_id", employee_id_val)
+            if row.employee_code == employee_code_val:
+                raise DuplicateEntryError("employee_code", employee_code_val)
             if row.email == email_val:
                 raise DuplicateEntryError("email", email_val)
 
@@ -76,7 +76,7 @@ class EmployeeService:
     async def create(self, payload: EmployeeCreate) -> Employee:
         # 1. Pre-check: readable error before hitting the DB constraint
         await self._check_unique_on_create(
-            payload.employee_id, str(payload.email)
+            payload.employee_code, str(payload.email)
         )
 
         employee = Employee(**payload.model_dump())
@@ -88,8 +88,8 @@ class EmployeeService:
             # 2. Fallback: race-condition duplicate caught at DB level
             await self.db.rollback()
             err = str(exc.orig).lower()
-            if "employee_id" in err or "uq_employees_employee_id" in err:
-                raise DuplicateEntryError("employee_id", payload.employee_id)
+            if "employee_code" in err or "uq_employees_employee_code" in err:
+                raise DuplicateEntryError("employee_code", payload.employee_code)
             if "email" in err or "uq_employees_email" in err:
                 raise DuplicateEntryError("email", str(payload.email))
             raise  # unexpected — let the 500 handler deal with it
@@ -104,7 +104,7 @@ class EmployeeService:
         if not update_data:
             return employee  # nothing to do
 
-        # Unique check only for email (employee_id is not updatable via this schema)
+        # Unique check only for email (employee_code is not updatable)
         new_email = update_data.get("email")
         if new_email and str(new_email) != employee.email:
             await self._check_email_unique_on_update(str(new_email), employee_id)

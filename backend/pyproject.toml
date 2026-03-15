@@ -1,0 +1,93 @@
+# =============================================================
+# HRMS Lite — Backend project metadata & tool configuration
+# =============================================================
+
+[project]
+name        = "hrms-lite-backend"
+version     = "0.1.0"
+description = "HRMS Lite FastAPI backend"
+requires-python = ">=3.12"
+
+
+# ─────────────────────────────────────────────────────────────
+# Ruff — linter + formatter  (replaces flake8, isort, black)
+# https://docs.astral.sh/ruff/
+# ─────────────────────────────────────────────────────────────
+
+[tool.ruff]
+target-version = "py312"
+line-length    = 100
+# Paths to lint; src layout means only app/ and tests/ are code
+include = ["app/**/*.py", "tests/**/*.py"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes (undefined names, unused imports, …)
+    "I",    # isort (import order)
+    "B",    # flake8-bugbear (likely bugs / design issues)
+    "UP",   # pyupgrade (use modern Python syntax)
+    "SIM",  # flake8-simplify
+    "C4",   # flake8-comprehensions
+    "FAST", # FastAPI-specific checks
+    "RUF",  # Ruff-native rules
+]
+ignore = [
+    "B008",   # do not perform function calls in default arguments
+               # — required by FastAPI's Depends() pattern
+    "SIM108", # ternary operator suggestion — hurts readability in complex exprs
+    "E501",   # line too long — handled by the formatter
+]
+
+[tool.ruff.lint.isort]
+known-first-party    = ["app"]
+force-sort-within-sections = true
+
+[tool.ruff.lint.per-file-ignores]
+# Test files: allow assert statements and magic values
+"tests/**/*.py" = ["S101", "PLR2004"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending  = "auto"
+# Normalise string quotes even inside f-strings (Ruff ≥ 0.6)
+docstring-code-format = true
+
+
+# ─────────────────────────────────────────────────────────────
+# mypy — static type checking
+# https://mypy.readthedocs.io/
+# ─────────────────────────────────────────────────────────────
+
+[tool.mypy]
+python_version         = "3.12"
+strict                 = false          # full strict is too noisy with SQLAlchemy
+disallow_untyped_defs  = true           # every function must be annotated
+no_implicit_optional   = true           # x: str | None, not x: str = None
+warn_redundant_casts   = true
+warn_unused_ignores    = true
+warn_return_any        = false          # SQLAlchemy returns Any in some places
+ignore_missing_imports = true           # avoids noise for packages without stubs
+
+# SQLAlchemy 2.0 ships its own stubs; suppress any residual errors in their internals
+[[tool.mypy.overrides]]
+module = [
+    "sqlalchemy.*",
+    "asyncpg.*",
+    "alembic.*",
+    "uvicorn.*",
+]
+ignore_errors = true
+
+
+# ─────────────────────────────────────────────────────────────
+# pytest
+# ─────────────────────────────────────────────────────────────
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"           # every async test function runs automatically
+testpaths    = ["tests"]
+# Show short locals + extra summary for failures and warnings
+addopts      = "-ra -q"

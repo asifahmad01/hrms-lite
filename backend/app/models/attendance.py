@@ -9,8 +9,10 @@ from app.db.base import Base
 
 
 class AttendanceStatus(str, enum.Enum):
-    PRESENT = "PRESENT"
-    ABSENT = "ABSENT"
+    PRESENT  = "PRESENT"
+    ABSENT   = "ABSENT"
+    LEAVE    = "LEAVE"
+    HALF_DAY = "HALF_DAY"
 
 
 class Attendance(Base):

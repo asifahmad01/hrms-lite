@@ -1,18 +1,20 @@
 """
 AttendanceService — business logic for the attendance resource.
 
+Statuses: PRESENT | ABSENT | LEAVE | HALF_DAY
+
 Duplicate strategy (belt + suspenders):
   1. Pre-check SELECT before INSERT → readable 409 message.
   2. Catch IntegrityError on flush()  → fallback for race conditions.
 """
 from datetime import date
 
-from sqlalchemy import and_, select
+from sqlalchemy import and_, extract, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import DuplicateEntryError, NotFoundError
-from app.models.attendance import Attendance
+from app.models.attendance import Attendance, AttendanceStatus
 from app.models.employee import Employee
 from app.schemas.attendance import AttendanceMark, AttendanceUpdate
 
@@ -25,9 +27,8 @@ class AttendanceService:
     # ── Helpers ───────────────────────────────────────────────────────────────
 
     async def _employee_exists_or_404(self, employee_id: int) -> None:
-        """Raise NotFoundError if no employee with this id exists."""
         result = await self.db.execute(
-            select(Employee).where(Employee.id == employee_id)
+            select(Employee.id).where(Employee.id == employee_id)
         )
         if result.scalar_one_or_none() is None:
             raise NotFoundError("Employee", employee_id)
@@ -49,11 +50,7 @@ class AttendanceService:
         from_date: date | None = None,
         to_date: date | None = None,
     ) -> list[Attendance]:
-        """
-        Return all attendance records for an employee, newest first.
-        Optional from_date / to_date narrow the window (both inclusive).
-        Raises NotFoundError (→ 404) if the employee does not exist.
-        """
+        """Return all attendance records for an employee, newest first."""
         await self._employee_exists_or_404(employee_id)
 
         query = (
@@ -71,16 +68,11 @@ class AttendanceService:
 
     async def mark(self, employee_id: int, payload: AttendanceMark) -> Attendance:
         """
-        Create an attendance record for an employee on a given date.
-
-        Raises:
-            NotFoundError       if the employee does not exist        → 404
-            DuplicateEntryError if attendance already marked for date → 409
+        Create an attendance record (strict — 409 if already exists).
+        Use upsert() for create-or-update semantics.
         """
-        # 1. Employee guard
         await self._employee_exists_or_404(employee_id)
 
-        # 2. Pre-check: same employee, same date
         existing = await self.db.execute(
             select(Attendance).where(
                 and_(
@@ -90,12 +82,8 @@ class AttendanceService:
             )
         )
         if existing.scalar_one_or_none() is not None:
-            raise DuplicateEntryError(
-                "attendance date",
-                str(payload.date),
-            )
+            raise DuplicateEntryError("attendance date", str(payload.date))
 
-        # 3. Insert
         record = Attendance(
             employee_fk=employee_id,
             date=payload.date,
@@ -106,13 +94,41 @@ class AttendanceService:
         try:
             await self.db.flush()
         except IntegrityError as exc:
-            # Fallback: race-condition duplicate caught at DB level
             await self.db.rollback()
             err = str(exc.orig).lower()
             if "uq_attendance_employee_date" in err or "date" in err:
                 raise DuplicateEntryError("attendance date", str(payload.date))
             raise
 
+        await self.db.refresh(record)
+        return record
+
+    async def upsert(self, employee_id: int, payload: AttendanceMark) -> Attendance:
+        """
+        Create-or-update attendance for a given employee and date.
+        Idempotent: safe to call repeatedly (used by the Daily view inline marking).
+        """
+        await self._employee_exists_or_404(employee_id)
+
+        result = await self.db.execute(
+            select(Attendance).where(
+                Attendance.employee_fk == employee_id,
+                Attendance.date == payload.date,
+            )
+        )
+        record = result.scalar_one_or_none()
+
+        if record is not None:
+            record.status = payload.status
+        else:
+            record = Attendance(
+                employee_fk=employee_id,
+                date=payload.date,
+                status=payload.status,
+            )
+            self.db.add(record)
+
+        await self.db.flush()
         await self.db.refresh(record)
         return record
 
@@ -130,3 +146,63 @@ class AttendanceService:
         record = await self._get_record_or_404(attendance_id)
         await self.db.delete(record)
         await self.db.flush()
+
+    # ── Daily view ────────────────────────────────────────────────────────────
+
+    async def get_daily_view(
+        self, target_date: date
+    ) -> list[tuple[Employee, Attendance | None]]:
+        """
+        Return every employee with their attendance record for target_date.
+        Employees without a record have None as the second element.
+        Ordered by employee full_name ascending.
+        """
+        result = await self.db.execute(
+            select(Employee, Attendance)
+            .outerjoin(
+                Attendance,
+                and_(
+                    Attendance.employee_fk == Employee.id,
+                    Attendance.date == target_date,
+                ),
+            )
+            .order_by(Employee.full_name)
+        )
+        return [(row[0], row[1]) for row in result.all()]
+
+    # ── Monthly summary ────────────────────────────────────────────────────────
+
+    async def get_monthly_summary(
+        self, employee_id: int, year: int, month: int
+    ) -> dict:
+        """
+        Attendance counts by status for one employee over a calendar month.
+        Rate = (present + half_day * 0.5) / total * 100, or 0.0 when total == 0.
+        """
+        await self._employee_exists_or_404(employee_id)
+
+        result = await self.db.execute(
+            select(Attendance.status, func.count(Attendance.id))
+            .where(
+                Attendance.employee_fk == employee_id,
+                extract("year",  Attendance.date) == year,
+                extract("month", Attendance.date) == month,
+            )
+            .group_by(Attendance.status)
+        )
+        counts: dict[str, int] = {row[0].value: row[1] for row in result.all()}
+
+        present  = counts.get("PRESENT",  0)
+        absent   = counts.get("ABSENT",   0)
+        leave    = counts.get("LEAVE",    0)
+        half_day = counts.get("HALF_DAY", 0)
+        total    = present + absent + leave + half_day
+        rate     = (
+            round((present + half_day * 0.5) / total * 100, 1)
+            if total > 0 else 0.0
+        )
+        return {
+            "present": present, "absent": absent,
+            "leave": leave, "half_day": half_day,
+            "total": total, "rate": rate,
+        }

@@ -27,3 +27,12 @@ class DuplicateEntryError(AppError):
         self.field = field
         self.value = value
         super().__init__(f"'{value}' is already registered as {field}.")
+
+
+class BusinessRuleError(AppError):
+    """
+    Raised when an operation violates a business rule.
+
+    Examples: status transition guard, overlap guard, delete-only-PENDING guard.
+    Routers convert this to HTTP 422 Unprocessable Entity.
+    """

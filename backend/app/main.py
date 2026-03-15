@@ -10,7 +10,7 @@ from app.core.config import get_settings
 from app.db.base import Base
 from app.db.session import engine
 import app.models  # noqa: F401 — registers all models with Base.metadata
-from app.routers import attendance, employees
+from app.routers import attendance, dashboard, employees, leave_requests
 from app.schemas.common import ErrorDetail, ErrorResponse
 
 settings = get_settings()
@@ -97,9 +97,19 @@ API_PREFIX = "/api/v1"
 # employees.router  prefix="/employees"  → /api/v1/employees/...
 app.include_router(employees.router, prefix=API_PREFIX)
 
-# attendance.router prefix="/employees"  → /api/v1/employees/{id}/attendance
+# attendance.router  prefix="/employees"  → /api/v1/employees/{id}/attendance
+# attendance.daily_router prefix="/attendance" → /api/v1/attendance/daily
 # (nested under employees intentionally — see routers/attendance.py)
-app.include_router(attendance.router, prefix=API_PREFIX)
+app.include_router(attendance.router,       prefix=API_PREFIX)
+app.include_router(attendance.daily_router, prefix=API_PREFIX)
+
+# leave_requests.router       prefix="/employees" → /api/v1/employees/{id}/leaves
+# leave_requests.admin_router prefix="/leaves"    → /api/v1/leaves/...
+app.include_router(leave_requests.router,       prefix=API_PREFIX)
+app.include_router(leave_requests.admin_router, prefix=API_PREFIX)
+
+# dashboard.router prefix="/dashboard"  → /api/v1/dashboard/stats
+app.include_router(dashboard.router, prefix=API_PREFIX)
 
 
 # ── Health check ──────────────────────────────────────────────────────────────

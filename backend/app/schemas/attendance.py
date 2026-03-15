@@ -3,6 +3,7 @@ from datetime import date as Date, datetime
 from pydantic import BaseModel, Field, model_validator
 
 from app.models.attendance import AttendanceStatus
+from app.schemas.employee import EmployeeRead
 
 
 class AttendanceBase(BaseModel):
@@ -54,3 +55,24 @@ class AttendanceDateFilter(BaseModel):
         if self.from_date and self.to_date and self.from_date > self.to_date:
             raise ValueError("'from' date must not be after 'to' date")
         return self
+
+
+# ── Daily view ─────────────────────────────────────────────────────────────────
+
+class DailyAttendanceItem(BaseModel):
+    """One row in the daily attendance view — employee + their record for the day."""
+    employee: EmployeeRead
+    record: AttendanceRead | None
+
+
+# ── Monthly summary ────────────────────────────────────────────────────────────
+
+class AttendanceMonthlySummary(BaseModel):
+    """Aggregate attendance counts for a single employee over a calendar month."""
+    present:  int
+    absent:   int
+    leave:    int
+    half_day: int
+    total:    int
+    # Rate = (present + half_day * 0.5) / total * 100 ; 0.0 when no records
+    rate: float
