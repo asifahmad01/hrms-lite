@@ -106,7 +106,7 @@ function validate(form: FormState, mode: ModalMode): FieldErrors {
     const code = form.employee_code.trim()
     if (!code)
       errors.employee_code = 'Employee code is required.'
-    else if (!/^[A-Z0-9\-]{2,20}$/.test(code.toUpperCase()))
+    else if (!/^[A-Z0-9-]{2,20}$/.test(code.toUpperCase()))
       errors.employee_code = 'Use 2–20 uppercase letters, digits, or hyphens (e.g. EMP-001).'
   }
   if (!form.full_name.trim())
@@ -193,7 +193,7 @@ export default function EmployeesPage() {
     }
   }
 
-  useEffect(() => { loadEmployees() }, [])
+  useEffect(() => { void loadEmployees() }, [])
 
   // ── Derived filtered + sorted list ────────────────────────────────────────────
 
@@ -257,7 +257,7 @@ export default function EmployeesPage() {
           location:        form.location           || undefined,
         }
         const res = await employeesApi.create(payload)
-        if (res.data) setEmployees(prev => [res.data!, ...prev])
+        if (res.data) setEmployees(prev => [res.data as NonNullable<typeof res.data>, ...prev])
         toast.success(`"${form.full_name.trim()}" added successfully.`)
       } else {
         const payload: UpdateEmployeePayload = {
@@ -272,9 +272,10 @@ export default function EmployeesPage() {
           manager_name:    form.manager_name.trim() || undefined,
           location:        form.location           || undefined,
         }
-        const res = await employeesApi.update(editingId!, payload)
+        if (editingId === null) return
+        const res = await employeesApi.update(editingId, payload)
         if (res.data)
-          setEmployees(prev => prev.map(e => e.id === editingId ? res.data! : e))
+          setEmployees(prev => prev.map(e => e.id === editingId ? (res.data as NonNullable<typeof res.data>) : e))
         toast.success(`"${form.full_name.trim()}" updated successfully.`)
       }
       closeModal()
@@ -376,7 +377,7 @@ export default function EmployeesPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => handleDelete(e)}
+            onClick={() => { void handleDelete(e) }}
             disabled={deletingId === e.id}
           >
             {deletingId === e.id ? '…' : 'Delete'}
@@ -401,7 +402,7 @@ export default function EmployeesPage() {
       </div>
 
       {/* Load error */}
-      {error && <PageError message={error} onRetry={loadEmployees} />}
+      {error && <PageError message={error} onRetry={() => { void loadEmployees() }} />}
 
       {/* Employee table card */}
       <Card>
@@ -517,7 +518,7 @@ export default function EmployeesPage() {
 
                 {formError && <div className="alert alert-error mb-4">{formError}</div>}
 
-                <form className="modal-form" onSubmit={handleSubmit} noValidate>
+                <form className="modal-form" onSubmit={e => { void handleSubmit(e) }} noValidate>
                   <div className="form-grid-2">
 
                     {/* Code — add only */}

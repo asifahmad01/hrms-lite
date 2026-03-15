@@ -29,7 +29,7 @@ export default function Table<T,>({ columns, data, keyExtractor }: TableProps<T>
                 <td key={col.key}>
                   {col.render
                     ? col.render(row)
-                    : String((row as Record<string, unknown>)[col.key] ?? '')}
+                    : String((row as Record<string, string | number | boolean | null | undefined>)[col.key] ?? '')}
                 </td>
               ))}
             </tr>

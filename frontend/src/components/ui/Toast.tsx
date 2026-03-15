@@ -1,3 +1,4 @@
+/* @refresh reset */
 /**
  * Minimal toast notification system.
  *
@@ -29,6 +30,7 @@ const ToastContext = createContext<ToastAPI | null>(null)
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useToast(): ToastAPI {
   const ctx = useContext(ToastContext)
   if (!ctx) throw new Error('useToast must be used inside <ToastProvider>')

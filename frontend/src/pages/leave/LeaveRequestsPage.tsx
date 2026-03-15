@@ -142,7 +142,7 @@ export default function LeaveRequestsPage() {
     }
   }
 
-  useEffect(() => { loadAll() }, [])
+  useEffect(() => { void loadAll() }, [])
 
   // ── Handlers ───────────────────────────────────────────────────────────────
 
@@ -315,7 +315,7 @@ export default function LeaveRequestsPage() {
                   variant="ghost"
                   size="sm"
                   disabled={busy}
-                  onClick={() => handleApprove(r)}
+                  onClick={() => { void handleApprove(r) }}
                 >
                   Approve
                 </Button>
@@ -323,7 +323,7 @@ export default function LeaveRequestsPage() {
                   variant="ghost"
                   size="sm"
                   disabled={busy}
-                  onClick={() => handleReject(r)}
+                  onClick={() => { void handleReject(r) }}
                 >
                   Reject
                 </Button>
@@ -331,7 +331,7 @@ export default function LeaveRequestsPage() {
                   variant="danger"
                   size="sm"
                   disabled={busy}
-                  onClick={() => handleDelete(r)}
+                  onClick={() => { void handleDelete(r) }}
                 >
                   Delete
                 </Button>
@@ -357,7 +357,7 @@ export default function LeaveRequestsPage() {
       </div>
 
       {/* Load error */}
-      {error && <PageError message={error} onRetry={loadAll} />}
+      {error && <PageError message={error} onRetry={() => { void loadAll() }} />}
 
       {/* Summary stat pills */}
       {!loading && requests.length > 0 && (
@@ -480,7 +480,7 @@ export default function LeaveRequestsPage() {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={e => { void handleSubmit(e) }}>
               <div className="modal-body">
                 {formError && (
                   <div className="alert alert-error mb-4">{formError}</div>

@@ -107,7 +107,7 @@ function InfoRow({ label, value, mono }: { label: string; value?: string | null;
     <div className="profile-info-row">
       <span className="profile-info-label">{label}</span>
       <span className={`profile-info-value${mono ? ' font-mono' : ''}`}>
-        {value || '—'}
+        {value ?? '—'}
       </span>
     </div>
   )
@@ -212,8 +212,8 @@ export default function EmployeeProfilePage() {
 
   useEffect(() => {
     if (!isNaN(employeeId)) {
-      loadEmployee()
-      loadAttendance()
+      void loadEmployee()
+      void loadAttendance()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employeeId])
@@ -311,7 +311,7 @@ export default function EmployeeProfilePage() {
           ← Employees
         </button>
       </div>
-      <PageError message={empError} onRetry={loadEmployee} />
+      <PageError message={empError} onRetry={() => { void loadEmployee() }} />
     </>
   )
   if (!employee) return null
@@ -361,7 +361,7 @@ export default function EmployeeProfilePage() {
           <Button variant="ghost" onClick={openEdit}>Edit Profile</Button>
           <Button
             variant="danger"
-            onClick={handleDelete}
+            onClick={() => { void handleDelete() }}
             disabled={deleting}
           >
             {deleting ? 'Deleting…' : 'Delete'}
@@ -409,7 +409,7 @@ export default function EmployeeProfilePage() {
           {attLoading ? (
             <Spinner size="sm" />
           ) : attError ? (
-            <PageError message={attError} onRetry={loadAttendance} />
+            <PageError message={attError} onRetry={() => { void loadAttendance() }} />
           ) : (
             <div className="profile-att-summary">
               <MiniStat label="Total"   value={stats.total}   accent="blue" />
@@ -437,7 +437,7 @@ export default function EmployeeProfilePage() {
         {attLoading ? (
           <Spinner />
         ) : attError ? (
-          <PageError message={attError} onRetry={loadAttendance} />
+          <PageError message={attError} onRetry={() => { void loadAttendance() }} />
         ) : records.length === 0 ? (
           <EmptyState
             icon="📅"
@@ -478,7 +478,7 @@ export default function EmployeeProfilePage() {
 
             {formError && <div className="alert alert-error mb-4">{formError}</div>}
 
-            <form className="modal-form" onSubmit={handleEditSubmit} noValidate>
+            <form className="modal-form" onSubmit={e => { void handleEditSubmit(e) }} noValidate>
               <div className="form-grid-2">
 
                 {/* Full Name */}

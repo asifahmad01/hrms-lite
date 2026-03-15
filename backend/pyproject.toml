@@ -89,5 +89,6 @@ ignore_errors = true
 [tool.pytest.ini_options]
 asyncio_mode = "auto"           # every async test function runs automatically
 testpaths    = ["tests"]
+pythonpath   = ["."]
 # Show short locals + extra summary for failures and warnings
 addopts      = "-ra -q"

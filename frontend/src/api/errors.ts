@@ -17,7 +17,7 @@ export function mapApiError(
 ): string {
   if (err instanceof ApiError) {
     // Caller-supplied override takes highest priority
-    if (custom[err.status]) return custom[err.status]!
+    if (custom[err.status]) return custom[err.status] ?? ''
 
     switch (err.status) {
       case 400:

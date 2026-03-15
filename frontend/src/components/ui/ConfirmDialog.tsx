@@ -1,3 +1,4 @@
+/* @refresh reset */
 /**
  * ConfirmDialog — a Promise-based confirmation modal that replaces
  * window.confirm() across the entire app.
@@ -51,6 +52,7 @@ const ConfirmContext = createContext<ConfirmFn | null>(null)
  * Returns an async function that opens the confirm dialog and resolves to
  * true (confirmed) or false (cancelled / backdrop click).
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useConfirm(): ConfirmFn {
   const ctx = useContext(ConfirmContext)
   if (!ctx) throw new Error('useConfirm must be used inside <ConfirmProvider>')

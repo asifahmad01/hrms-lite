@@ -81,7 +81,7 @@ export default function DashboardPage() {
     }
   }
 
-  useEffect(() => { loadStats() }, [])
+  useEffect(() => { void loadStats() }, [])
 
   // ── Derived values (safe defaults during loading) ──────────────────────────
 
@@ -108,7 +108,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Load error ──────────────────────────────────────────────────── */}
-      {error && <PageError message={error} onRetry={loadStats} />}
+      {error && <PageError message={error} onRetry={() => { void loadStats() }} />}
 
       {/* ── Stat cards grid ─────────────────────────────────────────────── */}
       <div className="dashboard-stats-grid">

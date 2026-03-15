@@ -128,7 +128,7 @@ export default function AttendancePage() {
   }
 
   useEffect(() => {
-    loadDailyView(dailyDate)
+    void loadDailyView(dailyDate)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dailyDate])
 
@@ -159,7 +159,6 @@ export default function AttendancePage() {
       .then(res => setSummary(res.data))
       .catch(() => setSummary(null))
       .finally(() => setLoadingSum(false))
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, sumYear, sumMonth])
 
   // ── Handlers ───────────────────────────────────────────────────────────────
@@ -233,7 +232,7 @@ export default function AttendancePage() {
           data-status={record?.status ?? ''}
           value={record?.status ?? ''}
           disabled={saving === employee.id}
-          onChange={e => handleInlineStatus(employee.id, e.target.value as AttendanceStatus | '')}
+          onChange={e => { void handleInlineStatus(employee.id, e.target.value as AttendanceStatus | '') }}
         >
           <option value="">— Mark —</option>
           {ALL_STATUSES.map(s => (
