@@ -14,8 +14,8 @@ export const router = createBrowserRouter([
       // Redirect root → /dashboard
       { index: true, element: <Navigate to="/dashboard" replace /> },
       { path: 'dashboard',      element: <DashboardPage /> },
-      { path: 'employees',      element: <EmployeesPage /> },
-      { path: 'employees/:id',  element: <EmployeeProfilePage /> },
+      { path: 'employee-management',      element: <EmployeesPage /> },
+      { path: 'employee-management/:id',  element: <EmployeeProfilePage /> },
       { path: 'attendance',     element: <AttendancePage /> },
       { path: 'leave',          element: <LeaveRequestsPage /> },
     ],

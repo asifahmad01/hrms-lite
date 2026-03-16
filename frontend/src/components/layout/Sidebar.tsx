@@ -7,7 +7,7 @@ const NAV_GROUPS = [
     label: 'Main Menu',
     items: [
       { to: '/dashboard',  label: 'Dashboard',  icon: '📊' },
-      { to: '/employees',  label: 'Employees',  icon: '👥' },
+      { to: '/employee-management',  label: 'Employees',  icon: '👥' },
       { to: '/attendance', label: 'Attendance', icon: '📅' },
     ],
   },

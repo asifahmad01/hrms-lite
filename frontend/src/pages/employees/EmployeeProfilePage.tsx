@@ -1,5 +1,5 @@
 /**
- * EmployeeProfilePage — full employee detail view at /employees/:id
+ * EmployeeProfilePage — full employee detail view at /employee-management/:id
  *
  * Data:
  *   - Employee record:    GET /api/v1/employees/{id}
@@ -294,7 +294,7 @@ export default function EmployeeProfilePage() {
     try {
       await employeesApi.delete(employeeId)
       toast.success(`"${employee.full_name}" has been deleted.`)
-      navigate('/employees')
+      navigate('/employee-management')
     } catch (err) {
       toast.error(mapApiError(err))
       setDeleting(false)
@@ -307,7 +307,7 @@ export default function EmployeeProfilePage() {
   if (empError)   return (
     <>
       <div className="page-header">
-        <button className="profile-back-btn" onClick={() => navigate('/employees')}>
+        <button className="profile-back-btn" onClick={() => navigate('/employee-management')}>
           ← Employees
         </button>
       </div>
@@ -323,7 +323,7 @@ export default function EmployeeProfilePage() {
   return (
     <>
       {/* ── Back nav ──────────────────────────────────────────────────────── */}
-      <button className="profile-back-btn" onClick={() => navigate('/employees')}>
+      <button className="profile-back-btn" onClick={() => navigate('/employee-management')}>
         ← Employees
       </button>
 

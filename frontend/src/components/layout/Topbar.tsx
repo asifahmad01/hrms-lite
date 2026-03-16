@@ -9,7 +9,7 @@ interface PageMeta {
 
 const PAGE_META: Record<string, PageMeta> = {
   '/dashboard':  { title: 'Dashboard',      subtitle: 'Overview & key metrics'         },
-  '/employees':  { title: 'Employees',      subtitle: 'Manage employee records'        },
+  '/employee-management':  { title: 'Employees',      subtitle: 'Manage employee records'        },
   '/attendance': { title: 'Attendance',     subtitle: 'Track daily attendance'         },
   '/leave':      { title: 'Leave Requests', subtitle: 'Manage time-off requests'       },
   '/reports':    { title: 'Reports',        subtitle: 'Attendance & HR reports'        },

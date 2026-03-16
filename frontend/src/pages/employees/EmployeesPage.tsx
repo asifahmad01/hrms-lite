@@ -368,7 +368,7 @@ export default function EmployeesPage() {
       header: '',
       render: e => (
         <div className="emp-row-actions">
-          <Button variant="ghost" size="sm" onClick={() => navigate(`/employees/${e.id}`)}>
+          <Button variant="ghost" size="sm" onClick={() => navigate(`/employee-management/${e.id}`)}>
             View
           </Button>
           <Button variant="ghost" size="sm" onClick={() => openEdit(e)}>
